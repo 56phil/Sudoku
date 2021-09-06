@@ -6,29 +6,29 @@
 #include <string>
 #include <vector>
 
-#define MAX_K 1000
+#define MAX_K 512
 #define SIZE 9
 
 using namespace std;
 
-typedef array<array<int, SIZE>, SIZE> puzzleType;
+typedef array<array<int, SIZE>, SIZE> gridType;
 
 const int SIZE_SQRT = 3;
 const int SIZE_SQUARED = SIZE * SIZE;
 const int ROW_NB = SIZE_SQUARED * SIZE;
 const int COL_NB = SIZE_SQUARED << 2;
 
-Node Head;
-Node* HeadNode = &Head;
-Node* solution[MAX_K];
-Node* orig_values[MAX_K];
+node head;
+node* headNode = &head;
+node* solution[MAX_K];
+node* orig_values[MAX_K];
 
 bool matrix[ROW_NB][COL_NB] = { { 0 } };
 bool isSolved = false;
 
-void mapSolutionToGrid(puzzleType&);
-void printGrid(puzzleType&);
-void stringToPuzzleType(string&, puzzleType&);
+void mapSolutionToGrid(gridType&);
+void printGrid(gridType&);
+void stringToPuzzleType(string&, gridType&);
 
 clock_t timer, timer2;
 
@@ -37,11 +37,11 @@ clock_t timer, timer2;
 // DLX Functions ------------------------------------------------------------//
 //===========================================================================//
 
-void coverColumn(Node* col) {
+void coverColumn(node* col) {
     col->left->right = col->right;
     col->right->left = col->left;
-    for (Node* node = col->down; node != col; node = node->down) {
-        for (Node* temp = node->right; temp != node; temp = temp->right) {
+    for (node* tNode = col->down; tNode != col; tNode = tNode->down) {
+        for (node* temp = tNode->right; temp != tNode; temp = temp->right) {
             temp->down->up = temp->up;
             temp->up->down = temp->down;
             temp->head->size--;
@@ -49,9 +49,9 @@ void coverColumn(Node* col) {
     }
 }
 
-void uncoverColumn(Node* col) {
-    for (Node* node = col->up; node != col; node = node->up) {
-        for (Node* temp = node->left; temp != node; temp = temp->left) {
+void uncoverColumn(node* col) {
+    for (node* tNode = col->up; tNode != col; tNode = tNode->up) {
+        for (node* temp = tNode->left; temp != tNode; temp = temp->left) {
             temp->head->size++;
             temp->down->up = temp;
             temp->up->down = temp;
@@ -63,9 +63,9 @@ void uncoverColumn(Node* col) {
 
 void search(int k) {
 
-    if (HeadNode->right == HeadNode) {
+    if (headNode->right == headNode) {
         timer2 = clock() - timer;
-        puzzleType grid;
+        gridType grid;
         mapSolutionToGrid(grid);
         printGrid(grid);
         std::cout << "Time Elapsed: " << static_cast<double>(timer2) / CLOCKS_PER_SEC
@@ -76,30 +76,29 @@ void search(int k) {
     }
 
     // Choose the column with the smallest size to enhance speed
-    Node* Col = HeadNode->right;
-    for (Node* temp = Col->right; temp != HeadNode; temp = temp->right)
-        if (temp->size < Col->size)
-            Col = temp;
+    node* col = headNode->right;
+    for (node* temp = col->right; temp != headNode; temp = temp->right)
+        if (temp->size < col->size)
+            col = temp;
 
-    coverColumn(Col);
+    coverColumn(col);
 
-    for (Node* temp = Col->down; temp != Col; temp = temp->down) {
+    for (node* temp = col->down; temp != col; temp = temp->down) {
         solution[k] = temp;
-        for (Node* node = temp->right; node != temp; node = node->right) {
-            coverColumn(node->head);
+        for (node* tNode = temp->right; tNode != temp; tNode = tNode->right) {
+            coverColumn(tNode->head);
         }
 
         search(k + 1);
 
         temp = solution[k];
         solution[k] = NULL;
-        Col = temp->head;
-        for (Node* node = temp->left; node != temp; node = node->left) {
-            uncoverColumn(node->head);
+        col = temp->head;
+        for (node* tNode = temp->left; tNode != temp; tNode = tNode->left) {
+            uncoverColumn(tNode->head);
         }
     }
-
-    uncoverColumn(Col);
+    uncoverColumn(col);
 }
 
 
@@ -129,7 +128,7 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
             matrix[i][j] = 1;
 
         if ((j + 1) % SIZE == 0) {
-            x = counter*SIZE_SQUARED;
+            x = counter * SIZE_SQUARED;
             counter++;
         }
         else
@@ -151,16 +150,16 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
     for (j = 3 * SIZE_SQUARED; j < COL_NB; j++) {
 
         for (int l = 0; l < SIZE_SQRT; l++) {
-            for (int k = 0; k<SIZE_SQRT; k++)
-                matrix[x + l*SIZE + k*SIZE_SQUARED][j] = 1;
+            for (int k = 0; k < SIZE_SQRT; k++)
+                matrix[x + l * SIZE + k * SIZE_SQUARED][j] = 1;
         }
 
         int temp = j + 1 - 3 * SIZE_SQUARED;
 
         if (temp % (int)(SIZE_SQRT * SIZE) == 0)
-            x += (SIZE_SQRT - 1)*SIZE_SQUARED + (SIZE_SQRT - 1)*SIZE + 1;
+            x += (SIZE_SQRT - 1) * SIZE_SQUARED + (SIZE_SQRT - 1) * SIZE + 1;
         else if (temp % SIZE == 0)
-            x += SIZE*(SIZE_SQRT - 1) + 1;
+            x += SIZE * (SIZE_SQRT - 1) + 1;
         else
             x++;
     }
@@ -169,18 +168,18 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
 // BUILD A TOROIDAL DOUBLY LINKED LIST OUT OF THE SPARSE MATRIX -------------//
 void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
 
-    Node* header = new Node;
+    node* header = new node;
     header->left = header;
     header->right = header;
     header->down = header;
     header->up = header;
     header->size = -1;
     header->head = header;
-    Node* temp = header;
+    node* temp = header;
 
     // Create all Column Nodes
     for (int i = 0; i < COL_NB; i++) {
-        Node* newNode = new Node;
+        node* newNode = new node;
         newNode->size = 0;
         newNode->up = newNode;
         newNode->down = newNode;
@@ -195,8 +194,8 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
     // Add a Node for each 1 present in the sparse matrix and
     // update Column Nodes accordingly
     for (int i = 0; i < ROW_NB; i++) {
-        Node* top = header->right;
-        Node* prev = NULL;
+        node* top = header->right;
+        node* prev = NULL;
 
         if (i != 0 && i%SIZE_SQUARED == 0) {
             ID[0] -= SIZE - 1;
@@ -212,7 +211,7 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
 
         for (int j = 0; j < COL_NB; j++, top = top->right) {
             if (matrix[i][j]) {
-                Node* newNode = new Node;
+                node* newNode = new node;
                 newNode->rowID[0] = ID[0];
                 newNode->rowID[1] = ID[1];
                 newNode->rowID[2] = ID[2];
@@ -236,35 +235,35 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
             }
         }
     }
-    HeadNode = header;
+    headNode = header;
 }
 
 // COVERS VALUES THAT ARE ALREADY PRESENT IN THE GRID -----------------------//
-void TransformListToCurrentGrid(puzzleType& puzzle) {
+void TransformListToCurrentGrid(gridType& puzzle) {
     int index = 0;
-    for(int i = 0 ; i<SIZE; i++ )
-        for(int j = 0 ; j<SIZE; j++)
+    for(int i = 0; i < SIZE; i++ )
+        for(int j = 0; j < SIZE; j++)
             if (puzzle[i][j] > 0) {
-                Node* Col = NULL;
-                Node* temp = NULL;
-                for (Col = HeadNode->right; Col != HeadNode; Col = Col->right) {
-                    for (temp = Col->down; temp != Col; temp = temp->down)
-                        if (temp->rowID[0] == puzzle[i][j] &&
-                            temp->rowID[1] - 1 == i &&
-                            temp->rowID[2] - 1 == j)
+                node* col = NULL;
+                node* row = NULL;
+                for (col = headNode->right; col != headNode; col = col->right) {
+                    for (row = col->down; row != col; row = row->down)
+                        if (row->rowID[0] == puzzle[i][j] &&
+                            row->rowID[1] - 1 == i &&
+                            row->rowID[2] - 1 == j)
                             goto ExitLoops;
                 }
             ExitLoops:
-                coverColumn(Col);
-                orig_values[index] = temp;
+                coverColumn(col);
+                orig_values[index] = row;
                 index++;
-                for (Node* node = temp->right; node != temp; node = node->right) {
-                    coverColumn(node->head);
+                for (node* tNode = row->right; tNode != row; tNode = tNode->right) {
+                    coverColumn(tNode->head);
                 }
             }
 }
 
-void SolveSudoku(puzzleType& sudoku) {
+void SolveSudoku(gridType& sudoku) {
     timer = clock();
     BuildSparseMatrix(matrix);
     BuildLinkedList(matrix);
@@ -279,7 +278,7 @@ void SolveSudoku(puzzleType& sudoku) {
 // Print Functions ----------------------------------------------------------//
 //===========================================================================//
 
-void mapSolutionToGrid(puzzleType& sudoku) {
+void mapSolutionToGrid(gridType& sudoku) {
 
     for (int i = 0; solution[i] != NULL; i++) {
         sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] = solution[i]->rowID[0];
@@ -291,7 +290,7 @@ void mapSolutionToGrid(puzzleType& sudoku) {
 }
 
 // PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
-void printGrid(puzzleType& grid){
+void printGrid(gridType& grid){
     std::string ext_border = "+", int_border = "|";
     int counter = 1;
     int additional = 0;
@@ -330,7 +329,7 @@ void printGrid(puzzleType& grid){
     std::cout << ext_border << std::endl << std::endl;
 }
 
-void stringToPuzzleType(string& s, puzzleType& m) {
+void stringToPuzzleType(string& s, gridType& m) {
     for (int i(0); i < SIZE; i++) {
         for (int j(0); j < SIZE; j++) {
             m[i][j] = s[i * SIZE + j] & 0x0f;
@@ -338,7 +337,7 @@ void stringToPuzzleType(string& s, puzzleType& m) {
     }
 }
 
-static void loadPuzzles(vector<puzzleType> &puzzles) {
+static void loadPuzzles(vector<gridType> &puzzles) {
     const string fn("/Users/prh/Keepers/code/cpp/SudokuStuff/raw_sudokus.txt");
     char buff[BUFSIZ];
     fstream sIn;
@@ -349,7 +348,7 @@ static void loadPuzzles(vector<puzzleType> &puzzles) {
         string wrk(buff);
         replace(wrk.begin(), wrk.end(), '.', '0');
         if (wrk.size() == SIZE_SQUARED && all_of(wrk.begin(), wrk.end(), ::isdigit)) {
-            puzzleType m;
+            gridType m;
             stringToPuzzleType(wrk, m);
             puzzles.emplace_back(m);
         }
@@ -360,7 +359,7 @@ static void loadPuzzles(vector<puzzleType> &puzzles) {
 //----------------------------------------------------------------------------//
 
 int main(){
-    vector<puzzleType>puzzles;
+    vector<gridType>puzzles;
 
     loadPuzzles(puzzles);
 

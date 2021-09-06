@@ -8,13 +8,13 @@
 #ifndef node_h
 #define node_h
 
-struct Node {
+struct node {
 
-    Node *left;
-    Node *right;
-    Node *up;
-    Node *down;
-    Node *head;
+    node *left;
+    node *right;
+    node *up;
+    node *down;
+    node *head;
 
     int size;        //used for Column header
     int rowID[3];    //used to identify row in order to map solutions to a sudoku grid

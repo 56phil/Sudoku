@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		312CC4C626E56AF300FD2D09 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 312CC4C526E56AF300FD2D09 /* main.cpp */; };
+		314FD25626E6868E000BB5A0 /* PuzzleClass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 314FD25426E6868E000BB5A0 /* PuzzleClass.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		312CC4C226E56AF300FD2D09 /* OriginalDLX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OriginalDLX; sourceTree = BUILT_PRODUCTS_DIR; };
 		312CC4C526E56AF300FD2D09 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		314FD25426E6868E000BB5A0 /* PuzzleClass.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PuzzleClass.cpp; sourceTree = "<group>"; };
+		314FD25526E6868E000BB5A0 /* PuzzleClass.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PuzzleClass.hpp; sourceTree = "<group>"; };
 		31925F7126E636A600C022C1 /* node.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = node.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,6 +63,8 @@
 			children = (
 				312CC4C526E56AF300FD2D09 /* main.cpp */,
 				31925F7126E636A600C022C1 /* node.hpp */,
+				314FD25426E6868E000BB5A0 /* PuzzleClass.cpp */,
+				314FD25526E6868E000BB5A0 /* PuzzleClass.hpp */,
 			);
 			path = OriginalDLX;
 			sourceTree = "<group>";
@@ -121,6 +126,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				314FD25626E6868E000BB5A0 /* PuzzleClass.cpp in Sources */,
 				312CC4C626E56AF300FD2D09 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
