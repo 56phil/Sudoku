@@ -1,9 +1,9 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <ctime>
-#include <vector>
 #include <array>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 
 #define MAX_K 1000
 #define SIZE 9
@@ -13,13 +13,13 @@ using namespace std;
 typedef array<array<int, SIZE>, SIZE> puzzleType;
 
 struct Node {
-    
+
     Node *left;
     Node *right;
     Node *up;
     Node *down;
     Node *head;
-    
+
     int size;        //used for Column header
     int rowID[3];    //used to identify row in order to map solutions to a sudoku grid
                      //ID Format: (Candidate, Row, Column)
@@ -34,8 +34,10 @@ struct Node Head;
 struct Node* HeadNode = &Head;
 struct Node* solution[MAX_K];
 struct Node* orig_values[MAX_K];
+
 bool matrix[ROW_NB][COL_NB] = { { 0 } };
 bool isSolved = false;
+
 void mapSolutionToGrid(puzzleType&);
 void printGrid(puzzleType&);
 void strToPuzzleType(string&, puzzleType&);
@@ -71,7 +73,7 @@ void uncoverColumn(Node* col) {
 }
 
 void search(int k) {
-    
+
     if (HeadNode->right == HeadNode) {
         timer2 = clock() - timer;
         puzzleType grid;
@@ -82,23 +84,23 @@ void search(int k) {
         isSolved = true;
         return;
     }
-    
+
     //Choose Column Object Deterministically: Choose the column with the smallest Size
     Node* Col = HeadNode->right;
     for (Node* temp = Col->right; temp != HeadNode; temp = temp->right)
         if (temp->size < Col->size)
             Col = temp;
-    
+
     coverColumn(Col);
-    
+
     for (Node* temp = Col->down; temp != Col; temp = temp->down) {
         solution[k] = temp;
         for (Node* node = temp->right; node != temp; node = node->right) {
             coverColumn(node->head);
         }
-        
+
         search(k + 1);
-        
+
         temp = solution[k];
         solution[k] = NULL;
         Col = temp->head;
@@ -106,7 +108,7 @@ void search(int k) {
             uncoverColumn(node->head);
         }
     }
-    
+
     uncoverColumn(Col);
 }
 
@@ -116,7 +118,7 @@ void search(int k) {
 
 //--------------------------BUILD THE INITIAL MATRIX CONTAINING ALL POSSIBILITIES--------------------------------//
 void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
-    
+
     //Constraint 1: There can only be one value in any given cell
     int j = 0, counter = 0;
     for (int i = 0; i < ROW_NB; i++) { //iterate over all rows
@@ -127,14 +129,14 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
             counter = 0;
         }
     }
-    
+
     //Constraint 2: There can only be one instance of a number in any given row
     int x = 0;
     counter = 1;
     for (j = SIZE_SQUARED; j < 2 * SIZE_SQUARED; j++) {
         for (int i = x; i < counter*SIZE_SQUARED; i += SIZE)
             matrix[i][j] = 1;
-        
+
         if ((j + 1) % SIZE == 0) {
             x = counter*SIZE_SQUARED;
             counter++;
@@ -142,7 +144,7 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
         else
             x++;
     }
-    
+
     //Constraint 3: There can only be one instance of a number in any given column
     j = 2 * SIZE_SQUARED;
     for (int i = 0; i < ROW_NB; i++)
@@ -152,18 +154,18 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
         if (j >= 3 * SIZE_SQUARED)
             j = 2 * SIZE_SQUARED;
     }
-    
+
     //Constraint 4: There can only be one instance of a number in any given region
     x = 0;
     for (j = 3 * SIZE_SQUARED; j < COL_NB; j++) {
-        
+
         for (int l = 0; l < SIZE_SQRT; l++) {
             for (int k = 0; k<SIZE_SQRT; k++)
                 matrix[x + l*SIZE + k*SIZE_SQUARED][j] = 1;
         }
-        
+
         int temp = j + 1 - 3 * SIZE_SQUARED;
-        
+
         if (temp % (int)(SIZE_SQRT * SIZE) == 0)
             x += (SIZE_SQRT - 1)*SIZE_SQUARED + (SIZE_SQRT - 1)*SIZE + 1;
         else if (temp % SIZE == 0)
@@ -175,7 +177,7 @@ void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
 
 //-------------------BUILD A TOROIDAL DOUBLY LINKED LIST OUT OF THE SPARSE MATRIX-------------------------//
 void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
-    
+
     Node* header = new Node;
     header->left = header;
     header->right = header;
@@ -184,7 +186,7 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
     header->size = -1;
     header->head = header;
     Node* temp = header;
-    
+
     //Create all Column Nodes
     for (int i = 0; i < COL_NB; i++) {
         Node* newNode = new Node;
@@ -197,13 +199,13 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
         temp->right = newNode;
         temp = newNode;
     }
-    
+
     int ID[3] = { 0,1,1 };
     //Add a Node for each 1 present in the sparse matrix and update Column Nodes accordingly
     for (int i = 0; i < ROW_NB; i++) {
         Node* top = header->right;
         Node* prev = NULL;
-        
+
         if (i != 0 && i%SIZE_SQUARED == 0) {
             ID[0] -= SIZE - 1;
             ID[1]++;
@@ -216,7 +218,7 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
         else {
             ID[0]++;
         }
-        
+
         for (int j = 0; j < COL_NB; j++, top = top->right) {
             if (matrix[i][j]) {
                 Node* newNode = new Node;
@@ -243,7 +245,7 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
             }
         }
     }
-    
+
     HeadNode = header;
 }
 
@@ -266,9 +268,9 @@ void TransformListToCurrentGrid(puzzleType& puzzle) {
                 for (Node* node = temp->right; node != temp; node = node->right) {
                     coverColumn(node->head);
                 }
-                
+
             }
-    
+
 }
 
 //===============================================================================================================//
@@ -276,7 +278,7 @@ void TransformListToCurrentGrid(puzzleType& puzzle) {
 //===============================================================================================================//
 
 void mapSolutionToGrid(puzzleType& sudoku) {
-    
+
     for (int i = 0; solution[i] != NULL; i++) {
         sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] = solution[i]->rowID[0];
     }
@@ -294,7 +296,7 @@ void printGrid(puzzleType& grid){
         additional = SIZE;
     for (int i = 0; i < ((SIZE +SIZE_SQRT - 1) * 2 +additional+ 1); i++) {
         ext_border += '-';
-        
+
         if (i > 0 && i % ((SIZE_SQRT*2+SIZE_SQRT*(SIZE>9)+1)*counter + counter-1) == 0) {
             int_border += '+';
             counter++;
@@ -304,7 +306,7 @@ void printGrid(puzzleType& grid){
     }
     ext_border += '+';
     int_border += "|";
-    
+
     std::cout << ext_border << std::endl;
     for (int i = 0; i<SIZE; i++){
         std::cout << "| ";
@@ -346,10 +348,9 @@ void SolveSudoku(puzzleType& sudoku) {
     isSolved = false;
 }
 
-int main(){
+static void loadPuzzles(vector<puzzleType> &puzzles) {
     const string fn("/Users/prh/Keepers/code/cpp/SudokuStuff/raw_sudokus.txt");
     char buff[BUFSIZ];
-    vector<puzzleType>puzzles;
     fstream sIn;
     sIn.open(fn, ios::in);
     assert(sIn);
@@ -364,7 +365,13 @@ int main(){
         }
     }
     sIn.close();
-    
+}
+
+int main(){
+    vector<puzzleType>puzzles;
+
+    loadPuzzles(puzzles);
+
     for (auto puzzle : puzzles) {
         SolveSudoku(puzzle);
     }
