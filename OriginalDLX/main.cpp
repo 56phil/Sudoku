@@ -40,21 +40,21 @@ clock_t timer, timer2;
 void coverColumn(node* col) {
     col->left->right = col->right;
     col->right->left = col->left;
-    for (node* tNode = col->down; tNode != col; tNode = tNode->down) {
-        for (node* temp = tNode->right; temp != tNode; temp = temp->right) {
-            temp->down->up = temp->up;
-            temp->up->down = temp->down;
-            temp->head->size--;
+    for (node* node0 = col->down; node0 != col; node0 = node0->down) {
+        for (node* node1 = node0->right; node1 != node0; node1 = node1->right) {
+            node1->down->up = node1->up;
+            node1->up->down = node1->down;
+            node1->head->size--;
         }
     }
 }
 
 void uncoverColumn(node* col) {
-    for (node* tNode = col->up; tNode != col; tNode = tNode->up) {
-        for (node* temp = tNode->left; temp != tNode; temp = temp->left) {
-            temp->head->size++;
-            temp->down->up = temp;
-            temp->up->down = temp;
+    for (node* node0 = col->up; node0 != col; node0 = node0->up) {
+        for (node* node1 = node0->left; node1 != node0; node1 = node1->left) {
+            node1->head->size++;
+            node1->down->up = node1;
+            node1->up->down = node1;
         }
     }
     col->left->right = col;
@@ -68,8 +68,8 @@ void search(int k) {
         gridType grid;
         mapSolutionToGrid(grid);
         printGrid(grid);
-        std::cout << "Time Elapsed: " << static_cast<double>(timer2) / CLOCKS_PER_SEC
-        << " seconds.\n\n";
+        cout << "Time Elapsed: " << static_cast<double>(timer2) / CLOCKS_PER_SEC
+        << " seconds.\n" << endl;
         timer = clock();
         isSolved = true;
         return;
@@ -270,7 +270,7 @@ void SolveSudoku(gridType& sudoku) {
     TransformListToCurrentGrid(sudoku);
     search(0);
     if (!isSolved)
-        std::cout << "No Solution!" << std::endl;
+        cout << "No Solution!" << endl;
     isSolved = false;
 }
 
@@ -291,7 +291,7 @@ void mapSolutionToGrid(gridType& sudoku) {
 
 // PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
 void printGrid(gridType& grid){
-    std::string ext_border = "+", int_border = "|";
+    string ext_border = "+", int_border = "|";
     int counter = 1;
     int additional = 0;
     if (SIZE > 9)
@@ -309,24 +309,24 @@ void printGrid(gridType& grid){
     ext_border += '+';
     int_border += "|";
 
-    std::cout << ext_border << std::endl;
+    cout << ext_border << endl;
     for (int i = 0; i<SIZE; i++){
-        std::cout << "| ";
+        cout << "| ";
         for (int j = 0; j<SIZE; j++){
             if (grid[i][j] == 0)
-                std::cout << ". ";
+                cout << ". ";
             else
-                std::cout << grid[i][j] << " ";
+                cout << grid[i][j] << " ";
             if (additional > 0 && grid[i][j]<10)
-                std::cout << " ";
+                cout << " ";
             if ((j+1)%SIZE_SQRT == 0)
-                std::cout << "| ";
+                cout << "| ";
         }
-        std::cout << std::endl;
+        cout << endl;
         if ((i + 1) % SIZE_SQRT == 0 && (i+1)<SIZE)
-            std::cout << int_border << std::endl;
+            cout << int_border << endl;
     }
-    std::cout << ext_border << std::endl << std::endl;
+    cout << ext_border << '\n';
 }
 
 void stringToPuzzleType(string& s, gridType& m) {
