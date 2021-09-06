@@ -2,6 +2,7 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include "node.hpp"
 #include <string>
 #include <vector>
 
@@ -11,19 +12,6 @@
 using namespace std;
 
 typedef array<array<int, SIZE>, SIZE> puzzleType;
-
-struct Node {
-
-    Node *left;
-    Node *right;
-    Node *up;
-    Node *down;
-    Node *head;
-
-    int size;        //used for Column header
-    int rowID[3];    //used to identify row in order to map solutions to a sudoku grid
-                     //ID Format: (Candidate, Row, Column)
-};
 
 const int SIZE_SQUARED = SIZE*SIZE;
 const int SIZE_SQRT = 3;
@@ -40,7 +28,7 @@ bool isSolved = false;
 
 void mapSolutionToGrid(puzzleType&);
 void printGrid(puzzleType&);
-void strToPuzzleType(string&, puzzleType&);
+void stringToPuzzleType(string&, puzzleType&);
 
 clock_t timer, timer2;
 
@@ -249,7 +237,7 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
     HeadNode = header;
 }
 
-//--- COVERS VALUES THAT ARE ALREADY PRESENT IN THE GRID -----------------------------------------------------//
+// COVERS VALUES THAT ARE ALREADY PRESENT IN THE GRID -----------------------------------------------------//
 void TransformListToCurrentGrid(puzzleType& puzzle) {
     int index = 0;
     for(int i = 0 ; i<SIZE; i++ )
@@ -262,7 +250,8 @@ void TransformListToCurrentGrid(puzzleType& puzzle) {
                         if (temp->rowID[0] == puzzle[i][j] && (temp->rowID[1] - 1) == i && (temp->rowID[2] - 1) == j)
                             goto ExitLoops;
                 }
-            ExitLoops:        coverColumn(Col);
+            ExitLoops:
+                coverColumn(Col);
                 orig_values[index] = temp;
                 index++;
                 for (Node* node = temp->right; node != temp; node = node->right) {
@@ -273,9 +262,20 @@ void TransformListToCurrentGrid(puzzleType& puzzle) {
 
 }
 
-//===============================================================================================================//
-//----------------------------------------------- Print Functions -----------------------------------------------//
-//===============================================================================================================//
+void SolveSudoku(puzzleType& sudoku) {
+    timer = clock();
+    BuildSparseMatrix(matrix);
+    BuildLinkedList(matrix);
+    TransformListToCurrentGrid(sudoku);
+    search(0);
+    if (!isSolved)
+        std::cout << "No Solution!" << std::endl;
+    isSolved = false;
+}
+
+//=====================================================================================================//
+//------------------------------------- Print Functions -----------------------------------------------//
+//=====================================================================================================//
 
 void mapSolutionToGrid(puzzleType& sudoku) {
 
@@ -327,25 +327,12 @@ void printGrid(puzzleType& grid){
     std::cout << ext_border << std::endl << std::endl;
 }
 
-void strToPuzzleType(string& s, puzzleType& m) {
+void stringToPuzzleType(string& s, puzzleType& m) {
     for (int i(0); i < SIZE; i++) {
         for (int j(0); j < SIZE; j++) {
             m[i][j] = s[i * SIZE + j] & 0x0f;
         }
     }
-}
-
-//--------------------------------------------------------------------------------//
-
-void SolveSudoku(puzzleType& sudoku) {
-    timer = clock();
-    BuildSparseMatrix(matrix);
-    BuildLinkedList(matrix);
-    TransformListToCurrentGrid(sudoku);
-    search(0);
-    if (!isSolved)
-        std::cout << "No Solution!" << std::endl;
-    isSolved = false;
 }
 
 static void loadPuzzles(vector<puzzleType> &puzzles) {
@@ -360,12 +347,14 @@ static void loadPuzzles(vector<puzzleType> &puzzles) {
         replace(wrk.begin(), wrk.end(), '.', '0');
         if (wrk.size() == SIZE_SQUARED && all_of(wrk.begin(), wrk.end(), ::isdigit)) {
             puzzleType m;
-            strToPuzzleType(wrk, m);
+            stringToPuzzleType(wrk, m);
             puzzles.emplace_back(m);
         }
     }
     sIn.close();
 }
+
+//--------------------------------------------------------------------------------//
 
 int main(){
     vector<puzzleType>puzzles;
