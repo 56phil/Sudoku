@@ -1,13 +1,16 @@
 #include <iostream>
-#include <cmath>
+#include <fstream>
 #include <string>
 #include <ctime>
+#include <vector>
+#include <array>
 
 #define MAX_K 1000
-
-//#define SIZE 16
 #define SIZE 9
-//#define SIZE 4
+
+using namespace std;
+
+typedef array<array<int, SIZE>, SIZE> puzzleType;
 
 struct Node {
     
@@ -23,7 +26,7 @@ struct Node {
 };
 
 const int SIZE_SQUARED = SIZE*SIZE;
-const int SIZE_SQRT = sqrt((double)SIZE);
+const int SIZE_SQRT = 3;
 const int ROW_NB = SIZE*SIZE*SIZE;
 const int COL_NB = 4 * SIZE*SIZE;
 
@@ -33,8 +36,9 @@ struct Node* solution[MAX_K];
 struct Node* orig_values[MAX_K];
 bool matrix[ROW_NB][COL_NB] = { { 0 } };
 bool isSolved = false;
-void MapSolutionToGrid(int Sudoku[][SIZE]);
-void PrintGrid(int Sudoku[][SIZE]);
+void mapSolutionToGrid(puzzleType&);
+void printGrid(puzzleType&);
+void strToPuzzleType(string&, puzzleType&);
 
 clock_t timer, timer2;
 
@@ -70,11 +74,10 @@ void search(int k) {
     
     if (HeadNode->right == HeadNode) {
         timer2 = clock() - timer;
-        int Grid[SIZE][SIZE] = { {0} };
-        MapSolutionToGrid(Grid);
-        PrintGrid(Grid);
+        puzzleType grid;
+        mapSolutionToGrid(grid);
+        printGrid(grid);
         std::cout << "Time Elapsed: " << (float)timer2 / CLOCKS_PER_SEC << " seconds.\n\n";
-        std::cin.get(); //Pause console
         timer = clock();
         isSolved = true;
         return;
@@ -245,16 +248,16 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
 }
 
 //--- COVERS VALUES THAT ARE ALREADY PRESENT IN THE GRID -----------------------------------------------------//
-void TransformListToCurrentGrid(int Puzzle[][SIZE]) {
+void TransformListToCurrentGrid(puzzleType& puzzle) {
     int index = 0;
     for(int i = 0 ; i<SIZE; i++ )
         for(int j = 0 ; j<SIZE; j++)
-            if (Puzzle[i][j] > 0) {
+            if (puzzle[i][j] > 0) {
                 Node* Col = NULL;
                 Node* temp = NULL;
                 for (Col = HeadNode->right; Col != HeadNode; Col = Col->right) {
                     for (temp = Col->down; temp != Col; temp = temp->down)
-                        if (temp->rowID[0] == Puzzle[i][j] && (temp->rowID[1] - 1) == i && (temp->rowID[2] - 1) == j)
+                        if (temp->rowID[0] == puzzle[i][j] && (temp->rowID[1] - 1) == i && (temp->rowID[2] - 1) == j)
                             goto ExitLoops;
                 }
             ExitLoops:        coverColumn(Col);
@@ -272,18 +275,18 @@ void TransformListToCurrentGrid(int Puzzle[][SIZE]) {
 //----------------------------------------------- Print Functions -----------------------------------------------//
 //===============================================================================================================//
 
-void MapSolutionToGrid(int Sudoku[][SIZE]) {
+void mapSolutionToGrid(puzzleType& sudoku) {
     
     for (int i = 0; solution[i] != NULL; i++) {
-        Sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] = solution[i]->rowID[0];
+        sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] = solution[i]->rowID[0];
     }
     for (int i = 0; orig_values[i] != NULL; i++) {
-        Sudoku[orig_values[i]->rowID[1] - 1][orig_values[i]->rowID[2] - 1] = orig_values[i]->rowID[0];
+        sudoku[orig_values[i]->rowID[1] - 1][orig_values[i]->rowID[2] - 1] = orig_values[i]->rowID[0];
     }
 }
 
 //---------------------------------PRINTS A SUDOKU GRID OF ANY SIZE---------------------------------------------//
-void PrintGrid(int Sudoku[][SIZE]){
+void printGrid(puzzleType& grid){
     std::string ext_border = "+", int_border = "|";
     int counter = 1;
     int additional = 0;
@@ -306,11 +309,11 @@ void PrintGrid(int Sudoku[][SIZE]){
     for (int i = 0; i<SIZE; i++){
         std::cout << "| ";
         for (int j = 0; j<SIZE; j++){
-            if (Sudoku[i][j] == 0)
+            if (grid[i][j] == 0)
                 std::cout << ". ";
             else
-                std::cout << Sudoku[i][j] << " ";
-            if (additional > 0 && Sudoku[i][j]<10)
+                std::cout << grid[i][j] << " ";
+            if (additional > 0 && grid[i][j]<10)
                 std::cout << " ";
             if ((j+1)%SIZE_SQRT == 0)
                 std::cout << "| ";
@@ -322,13 +325,21 @@ void PrintGrid(int Sudoku[][SIZE]){
     std::cout << ext_border << std::endl << std::endl;
 }
 
+void strToPuzzleType(string& s, puzzleType& m) {
+    for (int i(0); i < SIZE; i++) {
+        for (int j(0); j < SIZE; j++) {
+            m[i][j] = s[i * SIZE + j] & 0x0f;
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------//
 
-void SolveSudoku(int Sudoku[][SIZE]) {
+void SolveSudoku(puzzleType& sudoku) {
     timer = clock();
     BuildSparseMatrix(matrix);
     BuildLinkedList(matrix);
-    TransformListToCurrentGrid(Sudoku);
+    TransformListToCurrentGrid(sudoku);
     search(0);
     if (!isSolved)
         std::cout << "No Solution!" << std::endl;
@@ -336,26 +347,26 @@ void SolveSudoku(int Sudoku[][SIZE]) {
 }
 
 int main(){
-    //Sudoku Hard to Brute Force
-    int Puzzle[9][9] =        {    { 0,0,0,  0,0,0,  0,0,0 },
-        { 0,0,0,  0,0,3,  0,8,5 },
-        { 0,0,1,  0,2,0,  0,0,0 },
-        
-        { 0,0,0,  5,0,7,  0,0,0 },
-        { 0,0,4,  0,0,0,  1,0,0 },
-        { 0,9,0,  0,0,0,  0,0,0 },
-        
-        { 5,0,0,  0,0,0,  0,7,3 },
-        { 0,0,2,  0,1,0,  0,0,0 },
-        { 0,0,0,  0,4,0,  0,0,9 }
-    };
+    const string fn("/Users/prh/Keepers/code/cpp/SudokuStuff/raw_sudokus.txt");
+    char buff[BUFSIZ];
+    vector<puzzleType>puzzles;
+    fstream sIn;
+    sIn.open(fn, ios::in);
+    assert(sIn);
+    while (sIn.getline(buff, BUFSIZ, ',')) {
+        sIn.ignore(BUFSIZ, '\n');
+        string wrk(buff);
+        replace(wrk.begin(), wrk.end(), '.', '0');
+        if (wrk.size() == SIZE_SQUARED && all_of(wrk.begin(), wrk.end(), ::isdigit)) {
+            puzzleType m;
+            strToPuzzleType(wrk, m);
+            puzzles.emplace_back(m);
+        }
+    }
+    sIn.close();
     
-    
-    
-//    int EmptyPuzzle[SIZE][SIZE] = { {0} };
-    
-    SolveSudoku(Puzzle);
-    
-    std::cin.get();
+    for (auto puzzle : puzzles) {
+        SolveSudoku(puzzle);
+    }
     return 0;
 }
