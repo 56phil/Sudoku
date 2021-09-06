@@ -75,7 +75,7 @@ void search(int k) {
         return;
     }
 
-    // Choose Column Object Deterministically: Choose the column with the smallest Size
+    // Choose the column with the smallest size to enhance speed
     Node* Col = HeadNode->right;
     for (Node* temp = Col->right; temp != HeadNode; temp = temp->right)
         if (temp->size < Col->size)
@@ -236,7 +236,6 @@ void BuildLinkedList(bool matrix[ROW_NB][COL_NB]) {
             }
         }
     }
-
     HeadNode = header;
 }
 
