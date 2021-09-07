@@ -319,7 +319,7 @@ void Puzzle::initMatrix() {
 }
 
 Puzzle::Puzzle() {
-//    initMatrix();
+    initMatrix();
     headNode = &head;
     solved.clear();
 };
