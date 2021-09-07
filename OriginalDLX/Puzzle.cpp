@@ -254,7 +254,7 @@ void Puzzle::solveSudoku(gridType sudoku) {
                 break;
             }
         }
-        cout << "Total solutions: " << solved.size() << endl;
+        cout << "Total solutions: " << solved.size() << "\n\n" << endl;
     }
 }
 
