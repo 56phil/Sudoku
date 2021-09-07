@@ -10,6 +10,7 @@
 #include <ctime>
 #include <iostream>
 #include "node.hpp"
+#include <vector>
 
 #define MAX_K 512
 #define SIZE 9
@@ -24,7 +25,7 @@ public:
     static const int ROW_NB = SIZE_SQUARED * SIZE;
     static const int COL_NB = SIZE_SQUARED << 2;
     
-    void SolveSudoku(gridType);
+    void solveSudoku(gridType);
     
     Puzzle();
     
@@ -37,14 +38,15 @@ private:
     bool matrix[ROW_NB][COL_NB];
     bool isSolved = false;
     clock_t timer, timer2;
+    vector<gridType>solved;
     
 // prototypes
     void coverColumn(node*);
     void uncoverColumn(node*);
     void search(int);
-    void BuildSparseMatrix(bool matrix[ROW_NB][COL_NB]);
-    void BuildLinkedList(bool matrix[ROW_NB][COL_NB]);
-    void TransformListToCurrentGrid(gridType& puzzle);
+    void buildSparseMatrix(bool matrix[ROW_NB][COL_NB]);
+    void buildLinkedList(bool matrix[ROW_NB][COL_NB]);
+    void transformListToCurrentGrid(gridType& puzzle);
     void mapSolutionToGrid(gridType&);
     void printGrid(gridType&);
     void initMatrix();
