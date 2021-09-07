@@ -25,7 +25,6 @@ public:
     static const int COL_NB = SIZE_SQUARED << 2;
     
     void SolveSudoku(gridType);
-    static void stringToGrid(string&, gridType&);
     
     Puzzle();
     
