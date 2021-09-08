@@ -242,11 +242,15 @@ void Puzzle::solveSudoku(gridType sudoku) {
     buildLinkedList(matrix);
     transformListToCurrentGrid(sudoku);
     search(0);
-    if (!isSolved)
+    if (!isSolved) {
         cout << "No Solution for:\n";
+        printGrid(sudoku);
+    }
     isSolved = false;
     if (solved.size() > 1) {
+        cerr << "Solutions: " << solved.size() << '\n';
         unique(solved.begin(), solved.end());
+        cerr << "Solutions: " << solved.size() << '\n';
         int cntr(0);
         for (auto g = solved.begin() + 1; g < solved.end(); g++) {
             printGrid(*g);

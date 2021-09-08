@@ -18,6 +18,8 @@ int main(){
     
     loadPuzzles(puzzles);
     
+    cout << "Grids in vector: " << puzzles.size() << '\n';
+    
     for (auto puzzle : puzzles) {
         Puzzle p;
         p.solveSudoku(puzzle);
@@ -34,7 +36,7 @@ void stringToPuzzleType(string& s, Puzzle::gridType& m) {
 }
 
 void loadPuzzles(vector<Puzzle::gridType> &puzzles) {
-    const string fn("/Users/prh/Keepers/code/cpp/SudokuStuff/raw_sudokus.txt");
+    const string fn("/Users/prh/sudoku/raw_sudokus.txt");
     char buff[BUFSIZ];
     fstream sIn;
     sIn.open(fn, ios::in);
