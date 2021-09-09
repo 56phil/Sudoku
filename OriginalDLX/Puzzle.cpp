@@ -367,4 +367,4 @@ Puzzle::Puzzle() {
     init1dArrays(solution, MAX_K);
     init1dArrays(orig_values, MAX_K);
     solved.clear();
-};
+}
