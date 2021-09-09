@@ -1,7 +1,4 @@
-#include <array>
-#include <ctime>
 #include <fstream>
-#include <iostream>
 #include "node.hpp"
 #include "Puzzle.hpp"
 #include <vector>

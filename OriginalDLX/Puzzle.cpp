@@ -9,21 +9,21 @@
 void Puzzle::coverColumn(node* col) {
     col->left->right = col->right;
     col->right->left = col->left;
-    for (node* node0 = col->down; node0 != col; node0 = node0->down) {
-        for (node* node1 = node0->right; node1 != node0; node1 = node1->right) {
-            node1->down->up = node1->up;
-            node1->up->down = node1->down;
-            node1->head->size--;
+    for (node* n0 = col->down; n0 != col; n0 = n0->down) {
+        for (node* n1 = n0->right; n1 != n0; n1 = n1->right) {
+            n1->down->up = n1->up;
+            n1->up->down = n1->down;
+            n1->head->size--;
         }
     }
 }
 
 void Puzzle::uncoverColumn(node* col) {
-    for (node* node0 = col->up; node0 != col; node0 = node0->up) {
-        for (node* node1 = node0->left; node1 != node0; node1 = node1->left) {
-            node1->head->size++;
-            node1->down->up = node1;
-            node1->up->down = node1;
+    for (node* n0 = col->up; n0 != col; n0 = n0->up) {
+        for (node* n1 = n0->left; n1 != n0; n1 = n1->left) {
+            n1->head->size++;
+            n1->down->up = n1;
+            n1->up->down = n1;
         }
     }
     col->left->right = col;
@@ -50,25 +50,25 @@ void Puzzle::search(int k) {
     
     // Choose the column with the smallest size to enhance speed
     node* col = headNode->right;
-    for (node* temp = col->right; temp != headNode; temp = temp->right)
-        if (temp->size < col->size)
-            col = temp;
+    for (node* n0 = col->right; n0 != headNode; n0 = n0->right)
+        if (n0->size < col->size)
+            col = n0;
     
     coverColumn(col);
     
-    for (node* temp = col->down; temp != col; temp = temp->down) {
-        solution[k] = temp;
-        for (node* tNode = temp->right; tNode != temp; tNode = tNode->right) {
-            coverColumn(tNode->head);
+    for (node* n0 = col->down; n0 != col; n0 = n0->down) {
+        solution[k] = n0;
+        for (node* n1 = n0->right; n1 != n0; n1 = n1->right) {
+            coverColumn(n1->head);
         }
         
         search(k + 1);
         
-        temp = solution[k];
+        n0 = solution[k];
         solution[k] = NULL;
-        col = temp->head;
-        for (node* tNode = temp->left; tNode != temp; tNode = tNode->left) {
-            uncoverColumn(tNode->head);
+        col = n0->head;
+        for (node* n1 = n0->left; n1 != n0; n1 = n1->left) {
+            uncoverColumn(n1->head);
         }
     }
     uncoverColumn(col);
@@ -85,7 +85,7 @@ void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
     // 1: There can only be one value in any given cell
     int j = 0, counter = 0;
     for (int i = 0; i < ROW_NB; i++) { //iterate over all rows
-        matrix[i][j] = 1;
+        matrix[i][j] = true;
         counter++;
         if (counter >= SIZE) {
             j++;
@@ -97,22 +97,22 @@ void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
     int x = 0;
     counter = 1;
     for (j = SIZE_SQUARED; j < 2 * SIZE_SQUARED; j++) {
-        for (int i = x; i < counter*SIZE_SQUARED; i += SIZE)
-            matrix[i][j] = 1;
+        for (int i = x; i < counter * SIZE_SQUARED; i += SIZE)
+            matrix[i][j] = true;
         
         if ((j + 1) % SIZE == 0) {
             x = counter * SIZE_SQUARED;
             counter++;
-        }
-        else
+        } else {
             x++;
+        }
     }
     
     // 3: There can only be one instance of a number in any given column
     j = 2 * SIZE_SQUARED;
     for (int i = 0; i < ROW_NB; i++)
     {
-        matrix[i][j] = 1;
+        matrix[i][j] = true;
         j++;
         if (j >= 3 * SIZE_SQUARED)
             j = 2 * SIZE_SQUARED;
@@ -124,7 +124,7 @@ void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
         
         for (int l = 0; l < SIZE_SQRT; l++) {
             for (int k = 0; k < SIZE_SQRT; k++)
-                matrix[x + l * SIZE + k * SIZE_SQUARED][j] = 1;
+                matrix[x + l * SIZE + k * SIZE_SQUARED][j] = true;
         }
         
         int temp = j + 1 - 3 * SIZE_SQUARED;
@@ -267,10 +267,12 @@ void Puzzle::solveSudoku(gridType sudoku) {
 
 void Puzzle::mapSolutionToGrid(gridType& sudoku) {
     for (int i = 0; solution[i] != NULL; i++) {
-        sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] = solution[i]->rowID[0];
+        sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] =
+        solution[i]->rowID[0];
     }
     for (int i = 0; orig_values[i] != NULL; i++) {
-        sudoku[orig_values[i]->rowID[1] - 1][orig_values[i]->rowID[2] - 1] = orig_values[i]->rowID[0];
+        sudoku[orig_values[i]->rowID[1] - 1]
+        [orig_values[i]->rowID[2] - 1] = orig_values[i]->rowID[0];
     }
 }
 
@@ -283,7 +285,8 @@ void Puzzle::printGrid(gridType& grid){
         additional = SIZE;
     for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2 + additional + 1); i++) {
         
-        if (i > 0 && i % ((SIZE_SQRT * 2 + SIZE_SQRT * (SIZE > 9) + 1) * counter + counter - 1) == 0) {
+        if (i > 0 &&
+            i % ((SIZE_SQRT * 2 + SIZE_SQRT * (SIZE > 9) + 1) * counter + counter - 1) == 0) {
             int_border += '+';
             counter++;
         } else {
