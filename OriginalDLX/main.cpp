@@ -1,7 +1,5 @@
 #include <fstream>
-#include "node.hpp"
 #include "Puzzle.hpp"
-#include <vector>
 
 using namespace std;
 
