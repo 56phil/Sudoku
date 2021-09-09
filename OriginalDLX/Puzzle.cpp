@@ -174,8 +174,7 @@ void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
             ID[0] -= SIZE - 1;
             ID[1]++;
             ID[2] -= SIZE - 1;
-        }
-        else if (i!= 0 && i%SIZE == 0) {
+        } else if (i!= 0 && i%SIZE == 0) {
             ID[0] -= SIZE - 1;
             ID[2]++;
         } else {
