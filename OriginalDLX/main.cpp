@@ -3,34 +3,34 @@
 
 using namespace std;
 
-void loadPuzzles(vector<Puzzle::gridType>&);
-void stringToPuzzleType(string&, Puzzle::gridType&);
+void readGrids(vector<Puzzle::gridType>&);
+void stringToGrid(string&, Puzzle::gridType&);
 
 //----------------------------------------------------------------------------//
 
 int main(){
-    vector<Puzzle::gridType>puzzles;
+    vector<Puzzle::gridType>grids;
     
-    loadPuzzles(puzzles);
+    readGrids(grids);
     
-    cout << "Grids in vector: " << puzzles.size() << '\n';
+    cout << "Grids ready to solve: " << grids.size() << '\n';
     
-    for (auto puzzle : puzzles) {
+    for (auto grid : grids) {
         Puzzle p;
-        p.solveSudoku(puzzle);
+        p.solveSudoku(grid);
     }
     return 0;
 }
 
-void stringToPuzzleType(string& s, Puzzle::gridType& m) {
+void stringToGrid(string& s, Puzzle::gridType& g) {
     for (int i(0); i < SIZE; i++) {
         for (int j(0); j < SIZE; j++) {
-            m[i][j] = s[i * SIZE + j] & 0x0f;
+            g[i][j] = s[i * SIZE + j] & 0x0f;
         }
     }
 }
 
-void loadPuzzles(vector<Puzzle::gridType> &puzzles) {
+void readGrids(vector<Puzzle::gridType> &grids) {
     const string fn("/Users/prh/sudoku/raw_sudokus.txt");
     char buff[BUFSIZ];
     fstream sIn;
@@ -42,9 +42,9 @@ void loadPuzzles(vector<Puzzle::gridType> &puzzles) {
         replace(wrk.begin(), wrk.end(), '.', '0');
         if (wrk.size() == Puzzle::SIZE_SQUARED &&
             all_of(wrk.begin(), wrk.end(), ::isdigit)) {
-            Puzzle::gridType m;
-            stringToPuzzleType(wrk, m);
-            puzzles.emplace_back(m);
+            Puzzle::gridType g;
+            stringToGrid(wrk, g);
+            grids.emplace_back(g);
         }
     }
     sIn.close();

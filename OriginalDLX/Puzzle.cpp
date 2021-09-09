@@ -79,12 +79,10 @@ void Puzzle::search(int k) {
 // Functions to turn a Sudoku grid into an Exact Cover problem --------------//
 //===========================================================================//
 
-// BUILD THE INITIAL MATRIX CONTAINING ALL POSSIBILITIES --------------------//
-void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
-    
-    // 1: There can only be one value in any given cell
-    int j = 0, counter = 0;
-    for (int i = 0; i < ROW_NB; i++) { //iterate over all rows
+static void c1(int &counter, int &j, bool (*matrix)[324]) {
+    j = 0;
+    counter = 0;
+    for (int i = 0; i < Puzzle::ROW_NB; i++) { //iterate over all rows
         matrix[i][j] = true;
         counter++;
         if (counter >= SIZE) {
@@ -92,50 +90,73 @@ void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
             counter = 0;
         }
     }
-    
-    // 2: There can only be one instance of a number in any given row
+}
+
+static int c2(int &counter, int &j, bool (*matrix)[324]) {
     int x = 0;
     counter = 1;
-    for (j = SIZE_SQUARED; j < 2 * SIZE_SQUARED; j++) {
-        for (int i = x; i < counter * SIZE_SQUARED; i += SIZE)
+    for (j = Puzzle::SIZE_SQUARED; j < 2 * Puzzle::SIZE_SQUARED; j++) {
+        for (int i = x; i < counter * Puzzle::SIZE_SQUARED; i += SIZE)
             matrix[i][j] = true;
         
         if ((j + 1) % SIZE == 0) {
-            x = counter * SIZE_SQUARED;
+            x = counter * Puzzle::SIZE_SQUARED;
             counter++;
         } else {
             x++;
         }
     }
-    
-    // 3: There can only be one instance of a number in any given column
-    j = 2 * SIZE_SQUARED;
-    for (int i = 0; i < ROW_NB; i++)
+    return x;
+}
+
+static void c3(int &j, bool (*matrix)[324]) {
+    for (int i = 0; i < Puzzle::ROW_NB; i++)
     {
         matrix[i][j] = true;
         j++;
-        if (j >= 3 * SIZE_SQUARED)
-            j = 2 * SIZE_SQUARED;
+        if (j >= 3 * Puzzle::SIZE_SQUARED)
+            j = 2 * Puzzle::SIZE_SQUARED;
     }
-    
-    // 4: There can only be one instance of a number in any given 3x3 region
+}
+
+static void c4(int &j, bool (*matrix)[324], int &x) {
     x = 0;
-    for (j = 3 * SIZE_SQUARED; j < COL_NB; j++) {
+    for (j = 3 * Puzzle::SIZE_SQUARED; j < Puzzle::COL_NB; j++) {
         
-        for (int l = 0; l < SIZE_SQRT; l++) {
-            for (int k = 0; k < SIZE_SQRT; k++)
-                matrix[x + l * SIZE + k * SIZE_SQUARED][j] = true;
+        for (int l = 0; l < Puzzle::SIZE_SQRT; l++) {
+            for (int k = 0; k < Puzzle::SIZE_SQRT; k++)
+                matrix[x + l * SIZE + k * Puzzle::SIZE_SQUARED][j] = true;
         }
         
-        int temp = j + 1 - 3 * SIZE_SQUARED;
+        int temp = j + 1 - 3 * Puzzle::SIZE_SQUARED;
         
-        if (temp % (int)(SIZE_SQRT * SIZE) == 0)
-            x += (SIZE_SQRT - 1) * SIZE_SQUARED + (SIZE_SQRT - 1) * SIZE + 1;
+        if (temp % (int)(Puzzle::SIZE_SQRT * SIZE) == 0)
+            x += (Puzzle::SIZE_SQRT - 1) * Puzzle::SIZE_SQUARED + (Puzzle::SIZE_SQRT - 1) * SIZE + 1;
         else if (temp % SIZE == 0)
-            x += SIZE * (SIZE_SQRT - 1) + 1;
+            x += SIZE * (Puzzle::SIZE_SQRT - 1) + 1;
         else
             x++;
     }
+}
+
+// BUILD THE INITIAL MATRIX CONTAINING ALL POSSIBILITIES --------------------//
+void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
+    
+    // 1: There can only be one value in any given cell
+    int j;
+    int counter;
+    c1(counter, j, matrix);
+    
+    // 2: There can only be one instance of a number in any given row
+    int x = c2
+    (counter, j, matrix);
+    
+    // 3: There can only be one instance of a number in any given column
+    j = 2 * SIZE_SQUARED;
+    c3(j, matrix);
+    
+    // 4: There can only be one instance of a number in any given 3x3 region
+    c4(j, matrix, x);
 }
 
 // BUILD A TOROIDAL DOUBLY LINKED LIST OUT OF THE SPARSE MATRIX -------------//
@@ -324,8 +345,26 @@ void Puzzle::initMatrix() {
     }
 }
 
+void init1dArrays(node* arg [], int n) {
+    for (int i(0); i < n; i++) {
+        arg[i] = nullptr;
+    }
+}
+
 Puzzle::Puzzle() {
-    initMatrix();
+    head.size = 0;
+    head.rowID[0] = 0;
+    head.rowID[1] = 0;
+    head.rowID[2] = 0;
+    head.left = nullptr;
+    head.right = nullptr;
+    head.up = nullptr;
+    head.down = nullptr;
     headNode = &head;
+    isSolved = false;
+    timer = timer2 = clock();
+    initMatrix();
+    init1dArrays(solution, MAX_K);
+    init1dArrays(orig_values, MAX_K);
     solved.clear();
 };
