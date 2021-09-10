@@ -65,7 +65,7 @@ void Puzzle::search(int k) {
         search(k + 1);
         
         n0 = solution[k];
-        solution[k] = NULL;
+        solution[k] = nullptr;
         col = n0->head;
         for (node* n1 = n0->left; n1 != n0; n1 = n1->left) {
             uncoverColumn(n1->head);
@@ -189,7 +189,7 @@ void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
     // update Column Nodes accordingly
     for (int i = 0; i < ROW_NB; i++) {
         node* top = header->right;
-        node* prev = NULL;
+        node* prev = nullptr;
         
         if (i != 0 && i % SIZE_SQUARED == 0) {
             ID[0] -= SIZE - 1;
@@ -208,7 +208,7 @@ void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
                 newNode->rowID[0] = ID[0];
                 newNode->rowID[1] = ID[1];
                 newNode->rowID[2] = ID[2];
-                if (prev == NULL) {
+                if (prev == nullptr) {
                     prev = newNode;
                     prev->right = newNode;
                 }
@@ -237,8 +237,8 @@ void Puzzle::transformListToCurrentGrid(gridType& puzzle) {
     for(int i = 0; i < SIZE; i++ )
         for(int j = 0; j < SIZE; j++)
             if (puzzle[i][j] > 0) {
-                node* col = NULL;
-                node* row = NULL;
+                node* col = nullptr;
+                node* row = nullptr;
                 for (col = headNode->right; col != headNode; col = col->right) {
                     for (row = col->down; row != col; row = row->down)
                         if (row->rowID[0] == puzzle[i][j] &&
@@ -287,11 +287,11 @@ void Puzzle::solveSudoku(gridType sudoku) {
 //===========================================================================//
 
 void Puzzle::mapSolutionToGrid(gridType& sudoku) {
-    for (int i = 0; solution[i] != NULL; i++) {
-        sudoku[solution[i]->rowID[1]-1][solution[i]->rowID[2]-1] =
+    for (int i = 0; solution[i] != nullptr; i++) {
+        sudoku[solution[i]->rowID[1] - 1][solution[i]->rowID[2] - 1] =
         solution[i]->rowID[0];
     }
-    for (int i = 0; orig_values[i] != NULL; i++) {
+    for (int i = 0; orig_values[i] != nullptr; i++) {
         sudoku[orig_values[i]->rowID[1] - 1]
         [orig_values[i]->rowID[2] - 1] = orig_values[i]->rowID[0];
     }
@@ -305,7 +305,6 @@ void Puzzle::printGrid(gridType& grid){
     if (SIZE > 9)
         additional = SIZE;
     for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2 + additional + 1); i++) {
-        
         if (i > 0 &&
             i % ((SIZE_SQRT * 2 + SIZE_SQRT * (SIZE > 9) + 1) * counter + counter - 1) == 0) {
             int_border += '+';
@@ -353,13 +352,8 @@ void init1dArrays(node* arg [], int n) {
 
 Puzzle::Puzzle() {
     head.size = 0;
-    head.rowID[0] = 0;
-    head.rowID[1] = 0;
-    head.rowID[2] = 0;
-    head.left = nullptr;
-    head.right = nullptr;
-    head.up = nullptr;
-    head.down = nullptr;
+    head.rowID[0] = head.rowID[1] = head.rowID[2] = 0;
+    head.left = head.right = head.up = head.down = nullptr;
     headNode = &head;
     isSolved = false;
     timer = timer2 = clock();
