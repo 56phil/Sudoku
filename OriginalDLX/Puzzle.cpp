@@ -300,19 +300,17 @@ void Puzzle::mapSolutionToGrid(gridType& sudoku) {
 // PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
 void Puzzle::printGrid(gridType& grid){
     string border = "+";
-    int additional(SIZE > 9 ? SIZE : 0);
-    int counter(1);
-    for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2 + additional + 1); i++) {
-        if (i > 0 &&
-            i % ((SIZE_SQRT * 2 + SIZE_SQRT * (SIZE > 9) + 1) * counter + counter - 1) == 0) {
+    int cntr(1);
+    for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2); i++) {
+        if (i > 0 && i % ((SIZE_SQRT * 2 + 1) * cntr + cntr - 1) == 0) {
             border += '+';
-            counter++;
+            cntr++;
         } else {
             border += '-';
         }
     }
     
-    border += "+\n";
+    border += "-+\n";
     cout << border;
     for (int i = 0; i < SIZE; i++){
         cout << "| ";
@@ -321,8 +319,6 @@ void Puzzle::printGrid(gridType& grid){
                 cout << ". ";
             else
                 cout << grid[i][j] << " ";
-            if (additional > 0 && grid[i][j] < 10)
-                cout << " ";
             if ((j+1)%SIZE_SQRT == 0)
                 cout << "| ";
         }
