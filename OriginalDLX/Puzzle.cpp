@@ -299,22 +299,21 @@ void Puzzle::mapSolutionToGrid(gridType& sudoku) {
 
 // PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
 void Puzzle::printGrid(gridType& grid){
-    string int_border = "|";
+    string border = "+";
     int additional(SIZE > 9 ? SIZE : 0);
     int counter(1);
     for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2 + additional + 1); i++) {
         if (i > 0 &&
             i % ((SIZE_SQRT * 2 + SIZE_SQRT * (SIZE > 9) + 1) * counter + counter - 1) == 0) {
-            int_border += '+';
+            border += '+';
             counter++;
         } else {
-            int_border += '-';
+            border += '-';
         }
     }
-    int_border += "|\n";
-    string ext_border(int_border);
-    replace(ext_border.begin(), ext_border.end(), '|', '+');
-    cout << ext_border;
+    
+    border += "+\n";
+    cout << border;
     for (int i = 0; i < SIZE; i++){
         cout << "| ";
         for (int j = 0; j < SIZE; j++){
@@ -329,9 +328,9 @@ void Puzzle::printGrid(gridType& grid){
         }
         cout << endl;
         if ((i + 1) % SIZE_SQRT == 0 && (i + 1) < SIZE)
-            cout << ext_border;
+            cout << border;
     }
-    cout << ext_border << "\n";
+    cout << border << "\n";
 }
 
 void Puzzle::initMatrix() {
