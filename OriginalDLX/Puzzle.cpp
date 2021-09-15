@@ -31,7 +31,7 @@ void Puzzle::uncoverColumn(node* col) {
 }
 
 void Puzzle::search(int k) {
-    
+
     if (headNode->right == headNode) {
         timer2 = clock() - timer;
         gridType grid;
@@ -47,23 +47,23 @@ void Puzzle::search(int k) {
         isSolved = true;
         return;
     }
-    
+
     // Choose the column with the smallest size to enhance speed
     node* col = headNode->right;
     for (node* n0 = col->right; n0 != headNode; n0 = n0->right)
         if (n0->size < col->size)
             col = n0;
-    
+
     coverColumn(col);
-    
+
     for (node* n0 = col->down; n0 != col; n0 = n0->down) {
         solution[k] = n0;
         for (node* n1 = n0->right; n1 != n0; n1 = n1->right) {
             coverColumn(n1->head);
         }
-        
+
         search(k + 1);
-        
+
         n0 = solution[k];
         solution[k] = nullptr;
         col = n0->head;
@@ -98,7 +98,7 @@ static int c2(int &counter, int &j, bool (*matrix)[324]) {
     for (j = Puzzle::SIZE_SQUARED; j < 2 * Puzzle::SIZE_SQUARED; j++) {
         for (int i = x; i < counter * Puzzle::SIZE_SQUARED; i += SIZE)
             matrix[i][j] = true;
-        
+
         if ((j + 1) % SIZE == 0) {
             x = counter * Puzzle::SIZE_SQUARED;
             counter++;
@@ -122,14 +122,14 @@ static void c3(int &j, bool (*matrix)[324]) {
 static void c4(int &j, bool (*matrix)[324], int &x) {
     x = 0;
     for (j = 3 * Puzzle::SIZE_SQUARED; j < Puzzle::COL_NB; j++) {
-        
+
         for (int l = 0; l < Puzzle::SIZE_SQRT; l++) {
             for (int k = 0; k < Puzzle::SIZE_SQRT; k++)
                 matrix[x + l * SIZE + k * Puzzle::SIZE_SQUARED][j] = true;
         }
-        
+
         int temp = j + 1 - 3 * Puzzle::SIZE_SQUARED;
-        
+
         if (temp % (int)(Puzzle::SIZE_SQRT * SIZE) == 0)
             x += (Puzzle::SIZE_SQRT - 1) * Puzzle::SIZE_SQUARED + (Puzzle::SIZE_SQRT - 1) * SIZE + 1;
         else if (temp % SIZE == 0)
@@ -141,27 +141,27 @@ static void c4(int &j, bool (*matrix)[324], int &x) {
 
 // BUILD THE INITIAL MATRIX CONTAINING ALL POSSIBILITIES --------------------//
 void Puzzle::buildSparseMatrix(bool matrix[ROW_NB][COL_NB]) {
-    
+
     // 1: There can only be one value in any given cell
     int j;
     int counter;
     c1(counter, j, matrix);
-    
+
     // 2: There can only be one instance of a number in any given row
     int x = c2
     (counter, j, matrix);
-    
+
     // 3: There can only be one instance of a number in any given column
     j = 2 * SIZE_SQUARED;
     c3(j, matrix);
-    
+
     // 4: There can only be one instance of a number in any given 3x3 region
     c4(j, matrix, x);
 }
 
 // BUILD A TOROIDAL DOUBLY LINKED LIST OUT OF THE SPARSE MATRIX -------------//
 void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
-    
+
     node* header = new node;
     header->left = header;
     header->right = header;
@@ -170,7 +170,7 @@ void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
     header->size = -1;
     header->head = header;
     node* temp = header;
-    
+
     // Create all Column Nodes
     for (int i = 0; i < COL_NB; i++) {
         node* newNode = new node;
@@ -183,14 +183,14 @@ void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
         temp->right = newNode;
         temp = newNode;
     }
-    
+
     int ID[3] = { 0,1,1 };
     // Add a Node for each 1 present in the sparse matrix and
     // update Column Nodes accordingly
     for (int i = 0; i < ROW_NB; i++) {
         node* top = header->right;
         node* prev = nullptr;
-        
+
         if (i != 0 && i % SIZE_SQUARED == 0) {
             ID[0] -= SIZE - 1;
             ID[1]++;
@@ -201,7 +201,7 @@ void Puzzle::buildLinkedList(bool matrix[ROW_NB][COL_NB]) {
         } else {
             ID[0]++;
         }
-        
+
         for (int j = 0; j < COL_NB; j++, top = top->right) {
             if (matrix[i][j]) {
                 node* newNode = new node;
@@ -300,10 +300,8 @@ void Puzzle::mapSolutionToGrid(gridType& sudoku) {
 // PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
 void Puzzle::printGrid(gridType& grid){
     string int_border = "|";
-    int counter = 1;
-    int additional = 0;
-    if (SIZE > 9)
-        additional = SIZE;
+    int additional(SIZE > 9 ? SIZE : 0);
+    int counter(1);
     for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2 + additional + 1); i++) {
         if (i > 0 &&
             i % ((SIZE_SQRT * 2 + SIZE_SQRT * (SIZE > 9) + 1) * counter + counter - 1) == 0) {
@@ -331,7 +329,7 @@ void Puzzle::printGrid(gridType& grid){
         }
         cout << endl;
         if ((i + 1) % SIZE_SQRT == 0 && (i + 1) < SIZE)
-            cout << int_border;
+            cout << ext_border;
     }
     cout << ext_border << "\n";
 }

@@ -10,11 +10,11 @@ void stringToGrid(string&, Puzzle::gridType&);
 
 int main(){
     vector<Puzzle::gridType>grids;
-    
+
     readGrids(grids);
-    
+
     cout << "Grids ready to solve: " << grids.size() << '\n';
-    
+
     for (auto grid : grids) {
         Puzzle p;
         p.solveSudoku(grid);
