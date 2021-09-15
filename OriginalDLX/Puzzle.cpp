@@ -297,21 +297,25 @@ void Puzzle::mapSolutionToGrid(gridType& sudoku) {
     }
 }
 
-// PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
-void Puzzle::printGrid(gridType& grid){
-    string border = "+";
+static void makeBorder(std::string &border) {
     int cntr(1);
-    for (int i = 0; i < ((SIZE + SIZE_SQRT - 1) * 2); i++) {
-        if (i > 0 && i % ((SIZE_SQRT * 2 + 1) * cntr + cntr - 1) == 0) {
+    for (int i = 0; i <= ((SIZE + Puzzle::SIZE_SQRT - 1) * 2); i++) {
+        if (i > 0 && i % ((Puzzle::SIZE_SQRT * 2 + 1) * cntr + cntr - 1) == 0) {
             border += '+';
             cntr++;
         } else {
             border += '-';
         }
     }
-    
-    border += "-+\n";
+    border += "+\n";
+}
+
+// PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
+void Puzzle::printGrid(gridType& grid){
+    string border = "+";
+    makeBorder(border);
     cout << border;
+    
     for (int i = 0; i < SIZE; i++){
         cout << "| ";
         for (int j = 0; j < SIZE; j++){
