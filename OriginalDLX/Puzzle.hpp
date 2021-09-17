@@ -24,22 +24,21 @@ public:
     static const int SIZE_SQUARED = SIZE * SIZE;
     static const int ROW_NB = SIZE_SQUARED * SIZE;
     static const int COL_NB = SIZE_SQUARED << 2;
-    
+
     void solveSudoku(gridType);
-    
     Puzzle();
-    
-private:
+
+ private:
     node head;
     node* headNode = &head;
-    node* solution[MAX_K];
-    node* orig_values[MAX_K];
-    
+    array<node*, MAX_K>solution;
+    array<node*, MAX_K>orig_values;
+
     bool matrix[ROW_NB][COL_NB];
     bool isSolved = false;
     clock_t timer, timer2;
     vector<gridType>solved;
-    
+
 // prototypes
     void coverColumn(node*);
     void uncoverColumn(node*);

@@ -310,7 +310,7 @@ static void makeBorder(std::string &border) {
     border += "+\n";
 }
 
-// PRINTS A SUDOKU GRID OF ANY SIZE -----------------------------------------//
+// PRINTS A SUDOKU GRID -----------------------------------------------------//
 void Puzzle::printGrid(gridType& grid){
     string border = "+";
     makeBorder(border);
@@ -341,12 +341,6 @@ void Puzzle::initMatrix() {
     }
 }
 
-void init1dArrays(node* arg [], int n) {
-    for (int i(0); i < n; i++) {
-        arg[i] = nullptr;
-    }
-}
-
 Puzzle::Puzzle() {
     head.size = 0;
     head.rowID[0] = head.rowID[1] = head.rowID[2] = 0;
@@ -355,7 +349,7 @@ Puzzle::Puzzle() {
     isSolved = false;
     timer = timer2 = clock();
     initMatrix();
-    init1dArrays(solution, MAX_K);
-    init1dArrays(orig_values, MAX_K);
+    solution.fill(nullptr);
+    orig_values.fill(nullptr);
     solved.clear();
 }
